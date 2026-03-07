@@ -1,10 +1,11 @@
-const CACHE_NAME = 'academy-v1';
+const CACHE_NAME = 'academy-v2';
 const urlsToCache = [
   './index.html',
   './style.css',
   './script.js',
   './manifest.json',
-  'https://b.top4top.io/p_3718lhyqd1.jpg'
+  './icon-192x192.png',
+  './icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
