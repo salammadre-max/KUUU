@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الأكاديمية</title>
+    <link rel="icon" href="https://b.top4top.io/p_3718lhyqd1.jpg">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e1065">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="startupPasswordModal" class="modal" style="display: block; background-color: var(--bg-color); z-index: 9999;">
+        <div class="modal-content glass-panel" style="text-align: center; margin-top: 20vh;">
+            <h3>تسجيل الدخول</h3>
+            <input type="password" id="startupPwdInput" class="glass-input" style="text-align: center; font-size: 24px; letter-spacing: 5px; margin: 20px 0;">
+            <button class="save-btn" onclick="checkStartupPassword()">دخول</button>
+        </div>
+    </div>
+
+    <div id="installPromptModal" class="modal" style="z-index: 9998;">
+        <div class="modal-content glass-panel" style="text-align: center; max-width: 400px;">
+            <img src="https://b.top4top.io/p_3718lhyqd1.jpg" alt="Logo" style="width: 80px; border-radius: 15px; margin-bottom: 15px;">
+            <h3>هل تريد تثبيت التطبيق؟</h3>
+            <p>قم بتثبيت التطبيق للوصول إليه بسرعة وبدون إنترنت.</p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="save-btn" onclick="installApp()" style="margin-top:0;">تثبيت</button>
+                <button class="save-btn" onclick="closeModal('installPromptModal')" style="background-color: var(--glass-bg); margin-top:0;">تخطي</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="imagePreviewModal" class="modal" style="z-index: 9997;">
+        <div class="modal-content glass-panel" style="background: transparent; box-shadow: none; border: none; text-align: center;">
+            <span class="close" onclick="closeModal('imagePreviewModal')" style="top: -30px; right: 0; color: white; font-size: 40px;">&times;</span>
+            <img id="previewImage" src="" alt="معاينة" style="max-width: 100%; max-height: 80vh; border-radius: 15px; border: 2px solid var(--primary-color);">
+        </div>
+    </div>
+
+    <nav class="glass-panel">
+        <div class="tab-btn active" onclick="openTab(event, 'players')">
+            <i class="fa-solid fa-users"></i> الفئات العمرية
+        </div>
+        <div class="tab-btn" onclick="openTab(event, 'store')">
+            <i class="fa-solid fa-store"></i> المتجر
+        </div>
+        <div class="tab-btn" onclick="openTab(event, 'direct-sales')">
+            <i class="fa-solid fa-cart-shopping"></i> البيع المباشر
+        </div>
+        <div class="tab-btn" onclick="openTab(event, 'coaches')">
+            <i class="fa-solid fa-user-tie"></i> المدربين
+        </div>
+        <div class="tab-btn" onclick="openTab(event, 'inventory')">
+            <i class="fa-solid fa-boxes-stacked"></i> المخزن
+        </div>
+    </nav>
+
+    <main class="content-area">
+        <section id="players" class="tab-content active">
+            <h2>الفئات العمرية</h2>
+            <div class="cards-container">
+                <div class="category-card c-1" onclick="showPlayers('البراعم')">البراعم</div>
+                <div class="category-card c-2" onclick="showPlayers('الأشبال')">الأشبال</div>
+                <div class="category-card c-3" onclick="showPlayers('الناشئين')">الناشئين</div>
+                <div class="category-card c-4" onclick="showPlayers('الشباب')">الشباب</div>
+            </div>
+
+            <div id="players-list-area" style="display: none; margin-top: 30px;">
+                <div class="section-header">
+                    <h3 id="selected-category-title">قائمة اللاعبين</h3>
+                    <button class="primary-btn" onclick="openModal('playerModal')">
+                        <i class="fa-solid fa-plus"></i> إضافة لاعب
+                    </button>
+                </div>
+                <div id="playersListContainer" class="glass-panel list-container">
+                    <p style="text-align: center; opacity: 0.7;">لا يوجد لاعبين حالياً. اضغط على "إضافة لاعب".</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="store" class="tab-content">
+            <div class="section-header">
+                <h2>المنتجات</h2>
+                <button class="primary-btn" onclick="toggleElement('addProductForm')">
+                    <i class="fa-solid fa-plus"></i> إضافة منتج
+                </button>
+            </div>
+            
+            <div id="addProductForm" class="glass-panel add-form-anim" style="display: none; margin-bottom: 20px; padding: 20px;">
+                <div class="form-grid">
+                    <input type="text" id="prodName" placeholder="اسم المادة" class="glass-input">
+                    <input type="number" id="prodPrice" placeholder="سعر المادة" class="glass-input">
+                    <input type="number" id="prodQty" placeholder="عدد المادة (المخزون)" class="glass-input">
+                </div>
+                <input type="hidden" id="prodEditId">
+                <button class="save-btn" onclick="saveProduct()">حفظ المنتج</button>
+            </div>
+
+            <div class="grid-container" id="productsListContainer">
+            </div>
+        </section>
+
+        <section id="direct-sales" class="tab-content">
+            <div class="section-header">
+                <h2>البيع المباشر</h2>
+                <button class="primary-btn" onclick="toggleElement('newSaleForm')">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <div id="newSaleForm" class="glass-panel add-form-anim" style="display: none; margin-bottom: 20px; padding: 20px;">
+                <input type="text" id="salePlayerName" placeholder="اسم الاعب" class="glass-input" style="width: 100%; margin-bottom: 15px;">
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="saleSearchInput" placeholder="الماده" class="glass-input" onkeyup="searchProductForSale()" style="flex: 1;">
+                </div>
+                
+                <div id="saleSearchResults" style="margin-bottom: 15px;"></div>
+                
+                <div id="currentSaleItems" class="glass-panel" style="padding: 10px; margin-bottom: 15px; min-height: 50px;">
+                </div>
+
+                <h3 id="saleTotalAmount" style="text-align: left; color: var(--primary-color); margin-bottom: 15px;">المجموع الكلي: 0</h3>
+                <button class="save-btn" onclick="saveSale()">حفض</button>
+            </div>
+
+            <div id="salesHistoryContainer" class="list-container glass-panel">
+                <p style="text-align: center; opacity: 0.7;">السجلات</p>
+            </div>
+        </section>
+
+        <section id="coaches" class="tab-content">
+            <div class="section-header">
+                <h2>المدربين</h2>
+                <button class="primary-btn" onclick="openModal('coachModal')">
+                    <i class="fa-solid fa-plus"></i> إضافة مدرب
+                </button>
+            </div>
+            <div id="coachesListContainer" class="glass-panel list-container">
+                <p style="text-align: center; opacity: 0.7;">لا يوجد مدربين مضافين حتى الآن.</p>
+            </div>
+        </section>
+
+        <section id="inventory" class="tab-content">
+            <div class="section-header">
+                <h2>المخزن</h2>
+                <button class="primary-btn" onclick="openModal('inventoryModal')">
+                    <i class="fa-solid fa-plus"></i> إضافة مادة
+                </button>
+            </div>
+            <div id="inventoryListContainer" class="list-container glass-panel">
+                <p style="text-align: center; opacity: 0.7;">المخزن فارغ حالياً.</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="playerModal" class="modal">
+        <div class="modal-content glass-panel">
+            <span class="close" onclick="closeModal('playerModal')">&times;</span>
+            <h3>إضافة لاعب جديد</h3>
+            <div class="form-grid">
+                <input type="text" id="playerName" placeholder="الاسم الثلاثي" class="glass-input">
+                <input type="date" id="playerDob" placeholder="المواليد" class="glass-input" title="المواليد">
+                <input type="text" id="playerAddress" placeholder="عنوان السكن" class="glass-input">
+                <input type="date" id="playerJoinDate" placeholder="تاريخ الانضمام" class="glass-input" title="تاريخ الانضمام">
+                <input type="date" id="playerSubEndDate" placeholder="تاريخ انتهاء الاشتراك" class="glass-input" title="تاريخ انتهاء الاشتراك">
+                <input type="text" id="playerNatId" placeholder="رقم البطاقة الوطنية" class="glass-input">
+                <input type="text" id="playerPassport" placeholder="جواز السفر (اختياري)" class="glass-input">
+                <input type="number" id="playerMonthlyPay" placeholder="التسديد الشهري" class="glass-input">
+                <input type="text" id="playerSchool" placeholder="اسم المدرسة" class="glass-input">
+            </div>
+            <button class="save-btn" onclick="savePlayer()">حفظ البيانات</button>
+        </div>
+    </div>
+
+    <div id="coachModal" class="modal">
+        <div class="modal-content glass-panel">
+            <span class="close" onclick="closeModal('coachModal')">&times;</span>
+            <h3>إضافة مدرب جديد</h3>
+            <div class="form-grid">
+                <input type="text" id="coachName" placeholder="الاسم الثلاثي" class="glass-input">
+                <input type="text" id="coachCert" placeholder="الشهادة التدريبية" class="glass-input">
+                <input type="date" id="coachDate" class="glass-input" title="تاريخ الانضمام">
+                <input type="file" id="coachImage" accept="image/*" class="glass-input" title="صورة المدرب">
+                <input type="number" id="coachAmount" placeholder="المبلغ المستلم" class="glass-input">
+                <input type="text" id="coachEquip" placeholder="التجهيز المستلم" class="glass-input">
+                <select id="coachCategory" class="glass-input">
+                    <option value="">اختر الفئة التي يدربها</option>
+                    <option value="البراعم">البراعم</option>
+                    <option value="الأشبال">الأشبال</option>
+                    <option value="الناشئين">الناشئين</option>
+                    <option value="الشباب">الشباب</option>
+                </select>
+            </div>
+            <input type="hidden" id="coachEditId">
+            <button class="save-btn" onclick="saveCoach()">حفظ البيانات</button>
+        </div>
+    </div>
+
+    <div id="inventoryModal" class="modal">
+        <div class="modal-content glass-panel">
+            <span class="close" onclick="closeModal('inventoryModal')">&times;</span>
+            <h3>إضافة مادة للمخزن</h3>
+            <div class="form-grid">
+                <input type="text" id="invName" placeholder="اسم المادة" class="glass-input">
+                <input type="number" id="invQty" placeholder="العدد" class="glass-input">
+            </div>
+            <input type="hidden" id="invEditId">
+            <button class="save-btn" onclick="saveInventoryItem()">حفظ المادة</button>
+        </div>
+    </div>
+
+    <div id="deletePasswordModal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px; text-align: center; animation: bounceIn 0.5s;">
+            <span class="close" onclick="closeModal('deletePasswordModal')">&times;</span>
+            <h3>تأكيد الحذف</h3>
+            <p style="margin-bottom: 15px;">أدخل كلمة المرور:</p>
+            <input type="password" id="deletePasswordInput" class="glass-input" style="margin-bottom: 15px; text-align: center;">
+            <input type="hidden" id="deleteTargetId">
+            <button class="save-btn" onclick="confirmDeleteCoach()" style="background-color: var(--c-3);">حذف</button>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px;">
+            <span class="close" onclick="closeModal('paymentModal')">&times;</span>
+            <h3>تسديد الاشتراك</h3>
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+                <div>
+                    <label style="display:block; margin-bottom:5px;">تاريخ البدء:</label>
+                    <input type="date" id="payStartDate" class="glass-input">
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom:5px;">تاريخ الانتهاء:</label>
+                    <input type="date" id="payEndDate" class="glass-input">
+                </div>
+            </div>
+            <input type="hidden" id="payPlayerId">
+            <button class="save-btn" onclick="savePayment()">حفظ</button>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
