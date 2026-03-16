@@ -57,6 +57,7 @@ let products = [];
 let salesHistory = [];
 let inventoryItems = [];
 let coaches = [];
+let employees = [];
 let currentCategory = '';
 let currentSaleItems = [];
 
@@ -80,6 +81,10 @@ onSnapshot(collection(db, "inventory"), (snapshot) => {
 onSnapshot(collection(db, "coaches"), (snapshot) => {
     coaches = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderCoaches();
+});
+onSnapshot(collection(db, "employees"), (snapshot) => {
+    employees = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderEmployees();
 });
 
 // الدوال الأساسية للنوافذ والتبويبات
@@ -287,7 +292,7 @@ function renderInventory() {
     });
 }
 
-// ---------------- قسم المدربين (مع ضغط الصور) ----------------
+// ---------------- قسم المدربين والموظفين (مع ضغط الصور) ----------------
 function resizeImageToText(file, callback) {
     const reader = new FileReader();
     reader.onload = function(event) {
@@ -387,6 +392,82 @@ window.confirmDeleteCoach = async function() {
     } else alert('كلمة المرور خاطئة!');
 }
 
+// ---------------- قسم الموظفين ----------------
+window.saveEmployee = async function() {
+    const name = document.getElementById('empName').value;
+    const role = document.getElementById('empRole').value;
+    const edu = document.getElementById('empEdu').value;
+    const amount = document.getElementById('empAmount').value;
+    const equip = document.getElementById('empEquip').value;
+    const editId = document.getElementById('empEditId').value;
+    const imageInput = document.getElementById('empImage');
+    
+    if (!name) return alert('يرجى إدخال اسم الموظف');
+
+    const saveData = async (imgBase64) => {
+        const empData = { name, role, edu, amount, equip };
+        if (imgBase64) empData.image = imgBase64;
+
+        if (editId) {
+            await updateDoc(doc(db, "employees", editId), empData);
+            document.getElementById('empEditId').value = '';
+        } else {
+            await addDoc(collection(db, "employees"), empData);
+        }
+        closeModal('employeeModal');
+        document.getElementById('empName').value = '';
+        document.getElementById('empRole').value = '';
+        document.getElementById('empEdu').value = '';
+        document.getElementById('empAmount').value = '';
+        document.getElementById('empEquip').value = '';
+        document.getElementById('empImage').value = '';
+    };
+
+    if (imageInput.files && imageInput.files[0]) {
+        resizeImageToText(imageInput.files[0], saveData);
+    } else {
+        saveData(null);
+    }
+}
+
+function renderEmployees() {
+    const container = document.getElementById('employeesListContainer');
+    container.innerHTML = employees.length === 0 ? '<p style="text-align: center; opacity: 0.7;">لا يوجد موظفين مضافين حتى الآن.</p>' : '';
+    employees.forEach(emp => {
+        let imgHtml = emp.image ? `<img src="${emp.image}" class="coach-img" onclick="showImagePreview('${emp.image}')">` : `<div class="coach-img-placeholder"><i class="fa-solid fa-user"></i></div>`;
+        container.innerHTML += `
+            <div class="list-item" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                ${imgHtml}
+                <div style="flex: 1; min-width: 150px;">
+                    <h4>${emp.name}</h4>
+                    <p>الصفة: ${emp.role || ''}</p>
+                    <p>التحصيل الدراسي: ${emp.edu || ''}</p>
+                    <p>المبلغ المستلم: ${emp.amount || ''}</p>
+                    <p>التجهيز المستلم: ${emp.equip || ''}</p>
+                </div>
+                <div class="card-actions">
+                    <button class="icon-btn edit-btn" onclick="editEmployee('${emp.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="icon-btn delete-btn" onclick="deleteEmployee('${emp.id}')"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>`;
+    });
+}
+
+window.editEmployee = function(id) {
+    const e = employees.find(x => x.id == id);
+    document.getElementById('empName').value = e.name || '';
+    document.getElementById('empRole').value = e.role || '';
+    document.getElementById('empEdu').value = e.edu || '';
+    document.getElementById('empAmount').value = e.amount || '';
+    document.getElementById('empEquip').value = e.equip || '';
+    document.getElementById('empEditId').value = e.id;
+    openModal('employeeModal');
+}
+
+window.deleteEmployee = async function(id) {
+    await deleteDoc(doc(db, "employees", id));
+}
+
 // ---------------- قسم اللاعبين ----------------
 window.savePlayer = async function() {
     const name = document.getElementById('playerName').value;
@@ -406,7 +487,7 @@ function renderPlayers() {
     const catPlayers = players.filter(p => p.category === currentCategory);
     container.innerHTML = catPlayers.length === 0 ? '<p style="text-align: center;">لا يوجد لاعبين حالياً.</p>' : '';
     
-    catPlayers.forEach(player => {
+    catPlayers.forEach((player, index) => {
         let daysLeft = 0;
         if(player.subEndDate) {
              const end = new Date(player.subEndDate); end.setHours(0,0,0,0);
@@ -419,7 +500,10 @@ function renderPlayers() {
 
         container.innerHTML += `
             <div class="list-item">
-                <div><h4>${nHtml}</h4><p>باقي من الاشتراك: ${daysLeft} يوم</p></div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="background-color: white; color: black; font-weight: bold; padding: 5px 12px; border-radius: 10px; font-size: 1.1rem;">${index + 1}-</div>
+                    <div><h4>${nHtml}</h4><p>باقي من الاشتراك: ${daysLeft} يوم</p></div>
+                </div>
                 <div class="card-actions" style="align-items: center;">${btnHtml}</div>
             </div>`;
     });
