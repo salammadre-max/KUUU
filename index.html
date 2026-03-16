@@ -43,13 +43,13 @@
 
     <nav class="glass-panel">
         <div class="tab-btn active" onclick="openTab(event, 'players')">
-            <i class="fa-solid fa-users"></i> الفئات العمرية
+            <i class="fa-solid fa-users"></i> الفئات
         </div>
         <div class="tab-btn" onclick="openTab(event, 'store')">
             <i class="fa-solid fa-store"></i> المتجر
         </div>
         <div class="tab-btn" onclick="openTab(event, 'direct-sales')">
-            <i class="fa-solid fa-cart-shopping"></i> البيع المباشر
+            <i class="fa-solid fa-cart-shopping"></i> المبيعات
         </div>
         <div class="tab-btn" onclick="openTab(event, 'coaches')">
             <i class="fa-solid fa-user-tie"></i> المدربين
@@ -59,6 +59,9 @@
         </div>
         <div class="tab-btn" onclick="openTab(event, 'employees')">
             <i class="fa-solid fa-id-badge"></i> الموظفين
+        </div>
+        <div class="tab-btn" onclick="openTab(event, 'external-app')">
+            <i class="fa-solid fa-globe"></i> الموقع
         </div>
     </nav>
 
@@ -170,6 +173,10 @@
             <div id="employeesListContainer" class="glass-panel list-container">
                 <p style="text-align: center; opacity: 0.7;">لا يوجد موظفين مضافين حتى الآن.</p>
             </div>
+        </section>
+
+        <section id="external-app" class="tab-content" style="padding: 0; height: calc(100vh - 130px); border-radius: 16px; overflow: hidden; background: transparent; border: none; box-shadow: none;">
+            <iframe src="https://basmali12.github.io/d112/" style="width: 100%; height: 100%; border: none;"></iframe>
         </section>
     </main>
 
