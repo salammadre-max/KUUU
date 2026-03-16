@@ -57,6 +57,9 @@
         <div class="tab-btn" onclick="openTab(event, 'inventory')">
             <i class="fa-solid fa-boxes-stacked"></i> المخزن
         </div>
+        <div class="tab-btn" onclick="openTab(event, 'employees')">
+            <i class="fa-solid fa-id-badge"></i> الموظفين
+        </div>
     </nav>
 
     <main class="content-area">
@@ -156,6 +159,18 @@
                 <p style="text-align: center; opacity: 0.7;">المخزن فارغ حالياً.</p>
             </div>
         </section>
+
+        <section id="employees" class="tab-content">
+            <div class="section-header">
+                <h2>الموظفين</h2>
+                <button class="primary-btn" onclick="openModal('employeeModal')">
+                    <i class="fa-solid fa-plus"></i> إضافة موظف
+                </button>
+            </div>
+            <div id="employeesListContainer" class="glass-panel list-container">
+                <p style="text-align: center; opacity: 0.7;">لا يوجد موظفين مضافين حتى الآن.</p>
+            </div>
+        </section>
     </main>
 
     <div id="playerModal" class="modal">
@@ -211,6 +226,23 @@
             </div>
             <input type="hidden" id="invEditId">
             <button class="save-btn" onclick="saveInventoryItem()">حفظ المادة</button>
+        </div>
+    </div>
+
+    <div id="employeeModal" class="modal">
+        <div class="modal-content glass-panel">
+            <span class="close" onclick="closeModal('employeeModal')">&times;</span>
+            <h3>إضافة موظف</h3>
+            <div class="form-grid">
+                <input type="text" id="empName" placeholder="الاسم الثلاثي" class="glass-input">
+                <input type="text" id="empRole" placeholder="الصفة" class="glass-input">
+                <input type="text" id="empEdu" placeholder="التحصيل الدراسي" class="glass-input">
+                <input type="file" id="empImage" accept="image/*" class="glass-input" title="صورة شخصية">
+                <input type="number" id="empAmount" placeholder="المبلغ المستلم" class="glass-input">
+                <input type="text" id="empEquip" placeholder="التجهيز المستلم" class="glass-input">
+            </div>
+            <input type="hidden" id="empEditId">
+            <button class="save-btn" onclick="saveEmployee()">حفظ البيانات</button>
         </div>
     </div>
 
