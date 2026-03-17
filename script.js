@@ -472,14 +472,29 @@ window.deleteEmployee = async function(id) {
 window.savePlayer = async function() {
     const name = document.getElementById('playerName').value;
     const subEndDate = document.getElementById('playerSubEndDate').value;
+    const dob = document.getElementById('playerDob').value;
+    const address = document.getElementById('playerAddress').value;
+    const imageInput = document.getElementById('playerImage');
+    
     if (!name) return alert('يرجى إدخال اسم اللاعب');
 
-    await addDoc(collection(db, "players"), {
-        name, subEndDate, category: currentCategory,
-        dob: document.getElementById('playerDob').value,
-        address: document.getElementById('playerAddress').value
-    });
-    closeModal('playerModal');
+    const saveData = async (imgBase64) => {
+        const playerData = {
+            name, subEndDate, category: currentCategory,
+            dob, address
+        };
+        if (imgBase64) playerData.image = imgBase64;
+
+        await addDoc(collection(db, "players"), playerData);
+        closeModal('playerModal');
+        document.getElementById('playerImage').value = '';
+    };
+
+    if (imageInput.files && imageInput.files[0]) {
+        resizeImageToText(imageInput.files[0], saveData);
+    } else {
+        saveData(null);
+    }
 }
 
 function renderPlayers() {
@@ -498,10 +513,13 @@ function renderPlayers() {
         let nHtml = isExpired ? `<span class="expired-name"><i class="fa-solid fa-circle-exclamation warning-icon"></i> ${player.name}</span>` : player.name;
         let btnHtml = isExpired ? `<button class="pay-btn" onclick="openPaymentModal('${player.id}')">تسديد</button>` : '';
 
+        let imgHtml = player.image ? `<img src="${player.image}" class="coach-img" onclick="showImagePreview('${player.image}')">` : `<div class="coach-img-placeholder"><i class="fa-solid fa-user"></i></div>`;
+
         container.innerHTML += `
             <div class="list-item">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="background-color: white; color: black; font-weight: bold; padding: 5px 12px; border-radius: 10px; font-size: 1.1rem;">${index + 1}-</div>
+                    ${imgHtml}
                     <div><h4>${nHtml}</h4><p>باقي من الاشتراك: ${daysLeft} يوم</p></div>
                 </div>
                 <div class="card-actions" style="align-items: center;">${btnHtml}</div>
