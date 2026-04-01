@@ -474,6 +474,7 @@ window.savePlayer = async function() {
     const subEndDate = document.getElementById('playerSubEndDate').value;
     const dob = document.getElementById('playerDob').value;
     const address = document.getElementById('playerAddress').value;
+    const editId = document.getElementById('playerEditId').value;
     const imageInput = document.getElementById('playerImage');
     
     if (!name) return alert('يرجى إدخال اسم اللاعب');
@@ -485,7 +486,13 @@ window.savePlayer = async function() {
         };
         if (imgBase64) playerData.image = imgBase64;
 
-        await addDoc(collection(db, "players"), playerData);
+        if (editId) {
+            await updateDoc(doc(db, "players", editId), playerData);
+            document.getElementById('playerEditId').value = '';
+        } else {
+            await addDoc(collection(db, "players"), playerData);
+        }
+        
         closeModal('playerModal');
         document.getElementById('playerImage').value = '';
     };
@@ -495,6 +502,20 @@ window.savePlayer = async function() {
     } else {
         saveData(null);
     }
+}
+
+window.editPlayer = function(id) {
+    const p = players.find(x => x.id == id);
+    document.getElementById('playerName').value = p.name || '';
+    document.getElementById('playerDob').value = p.dob || '';
+    document.getElementById('playerAddress').value = p.address || '';
+    document.getElementById('playerSubEndDate').value = p.subEndDate || '';
+    document.getElementById('playerEditId').value = p.id;
+    openModal('playerModal');
+}
+
+window.deletePlayer = async function(id) {
+    await deleteDoc(doc(db, "players", id));
 }
 
 function renderPlayers() {
@@ -522,7 +543,11 @@ function renderPlayers() {
                     ${imgHtml}
                     <div><h4>${nHtml}</h4><p>باقي من الاشتراك: ${daysLeft} يوم</p></div>
                 </div>
-                <div class="card-actions" style="align-items: center;">${btnHtml}</div>
+                <div class="card-actions" style="align-items: center;">
+                    ${btnHtml}
+                    <button class="icon-btn edit-btn" onclick="editPlayer('${player.id}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="icon-btn delete-btn" onclick="deletePlayer('${player.id}')"><i class="fa-solid fa-trash"></i></button>
+                </div>
             </div>`;
     });
 }
